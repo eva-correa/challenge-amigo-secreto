@@ -1,4 +1,5 @@
 let listaNomeAmigos = [];
+const regexSemEspeciais = /[^a-zA-Z0-9]/;
 
 // Seleciona os botões e o campo de entrada
 const inputAmigo = document.getElementById('amigo');
@@ -6,34 +7,38 @@ const btnAdicionar = document.querySelector('.button-add');
 const btnSortear = document.querySelector('.button-draw');
 const btnReiniciar = document.querySelector('.button-restart'); 
 
-/* Inicialmente, desabilita o botão de sortear
-if (btnSortear) {
-btnSortear.disabled = true;
-}
-*/
+
 
 // Funções para manipular a interface
 function adicionarAmigo() {
     const nome = inputAmigo.value.trim();
 
+    // 1. Valida se o campo está vazio
     if (nome === "") {
         alert("Por favor, insira um nome válido!");
         return;
     }
 
+    // 2. Valida se o nome já existe na lista
     if (listaNomeAmigos.includes(nome)) {
         alert("O nome " + nome + " já foi incluído.");
-    } else {
-        listaNomeAmigos.push(nome);
-        mostrarAmigos();
         limparCampo();
+        return;
     }
-    
-    // Habilita o botão de sortear se houver pelo menos 2 nomes
-    if (btnSortear && listaNomeAmigos.length >= 2) {
-        btnSortear.disabled = false;
+
+    // 3. Valida se o nome contém caracteres especiais
+    if (regexSemEspeciais.test(nome)) {
+        alert("O nome contém caracteres especiais!");
+        limparCampo();
+        return;
     }
+
+    // Se todas as validações passarem, adiciona o nome
+    listaNomeAmigos.push(nome);
+    mostrarAmigos();
+    limparCampo();
 }
+  
 
 function sortearAmigo() {
     if (listaNomeAmigos.length < 2) {
@@ -129,3 +134,4 @@ function reiniciar() {
     
     limparCampo();
 }
+
