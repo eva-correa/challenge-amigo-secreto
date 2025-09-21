@@ -90,7 +90,7 @@ function mostrarAmigos() {
         listaElemento.appendChild(novoItem);
     });
 }
-
+// Deixei na tela para que pudesse validar a logica e conferir se o sorteio estava correto.
 function mostrarSorteio(listaEmbaralhada) {
     const resultadoElemento = document.getElementById("resultado");
     if (!resultadoElemento) return;
