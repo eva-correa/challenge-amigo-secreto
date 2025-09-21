@@ -1,61 +1,131 @@
+let listaNomeAmigos = [];
 
-let listaamigos=[];
+// Seleciona os botões e o campo de entrada
+const inputAmigo = document.getElementById('amigo');
+const btnAdicionar = document.querySelector('.button-add');
+const btnSortear = document.querySelector('.button-draw');
+const btnReiniciar = document.querySelector('.button-restart'); 
 
+/* Inicialmente, desabilita o botão de sortear
+if (btnSortear) {
+btnSortear.disabled = true;
+}
+*/
 
+// Funções para manipular a interface
+function adicionarAmigo() {
+    const nome = inputAmigo.value.trim();
 
-
-
-// função que vai receber o nome dos amigos e armazenar em uma lista.
-function adicionarAmigo(){
-    let nome=  document.querySelector('input').value.trim();
-    if ( nome == ""){ 
-        alert("Por favor insira um nome válido!"); 
+    if (nome === "") {
+        alert("Por favor, insira um nome válido!");
         return;
-    } 
-    if (listaamigos.includes (nome) == true){
-         alert("O nome "+ nome +" já foi incluído.");     
+    }
+
+    if (listaNomeAmigos.includes(nome)) {
+        alert("O nome " + nome + " já foi incluído.");
     } else {
-        listaamigos.push (nome);
-        console.log (listaamigos);
+        listaNomeAmigos.push(nome);
+        mostrarAmigos();
+        limparCampo();
     }
-    mostrarAmigos();
-    limparCampo();
-    let botao = document.querySelector("button-container");
-    botao.disabled = listaamigos.length < 2;
+    
+    // Habilita o botão de sortear se houver pelo menos 2 nomes
+    if (btnSortear && listaNomeAmigos.length >= 2) {
+        btnSortear.disabled = false;
+    }
 }
 
-function sortearAmigo(){
-    if (listaamigos.length < 2){
-         alert("Insira no minimo dois nomes!");
-         return;          
-    }else {
-
-
-
+function sortearAmigo() {
+    if (listaNomeAmigos.length < 2) {
+        alert("Insira no mínimo dois nomes!");
+        return;
     }
 
+    const listaEmbaralhada = [...listaNomeAmigos];
+    embaralhar(listaEmbaralhada);
+    
+    // Desabilita os botões de adicionar e sortear, e mostra o de reiniciar
+    if (btnAdicionar) btnAdicionar.disabled = true;
+    if (btnSortear) btnSortear.style.display = 'none';
+    if (btnReiniciar) btnReiniciar.style.display = 'block';
+
+    // Limpa a lista de amigos para mostrar o resultado do sorteio
+    document.getElementById("listaAmigos").innerHTML = "";
+
+    // Lógica para garantir que ninguém tire a si mesmo
+    for (let i = 0; i < listaNomeAmigos.length; i++) {
+        const sorteado = listaEmbaralhada[i];
+        const amigo = listaNomeAmigos[i];
+        
+        if (sorteado === amigo) {
+            if (i === listaNomeAmigos.length - 1) {
+                const temp = listaEmbaralhada[i];
+                listaEmbaralhada[i] = listaEmbaralhada[0];
+                listaEmbaralhada[0] = temp;
+            } else {
+                const temp = listaEmbaralhada[i];
+                listaEmbaralhada[i] = listaEmbaralhada[i + 1];
+                listaEmbaralhada[i + 1] = temp;
+            }
+        }
+    }
+    
+    mostrarSorteio(listaEmbaralhada);
 }
 
-//função para mostrar os amigos inseridos no HTML.
-function mostrarAmigos(){
-    // Seleciona o elemento <ul> pelo ID
+
+function mostrarAmigos() {
     const listaElemento = document.getElementById("listaAmigos");
-    // Limpa a lista para não aparecer duplicado na página.
-        listaElemento.innerHTML = "";
-    // Percorre o array e adiciona cada item à lista
-   listaamigos.forEach(itemTexto => {
-        // 1. Cria um novo elemento de item de lista (<li>)
+    if (!listaElemento) return;
+
+    listaElemento.innerHTML = "";
+    listaNomeAmigos.forEach(nome => {
         const novoItem = document.createElement("li");
-        // 2. Define o texto do item de lista
-        novoItem.textContent = itemTexto;
-        // 3. Adiciona o novo item à lista <ul>
+        novoItem.textContent = nome;
         listaElemento.appendChild(novoItem);
-     });
+    });
 }
 
+function mostrarSorteio(listaEmbaralhada) {
+    const resultadoElemento = document.getElementById("resultado");
+    if (!resultadoElemento) return;
+
+    resultadoElemento.innerHTML = "";
+    
+    for (let i = 0; i < listaNomeAmigos.length; i++) {
+        const amigo = listaNomeAmigos[i];
+        const sorteado = listaEmbaralhada[i];
+        const novoItem = document.createElement("li");
+        novoItem.textContent = `${amigo} -> ${sorteado}`;
+        resultadoElemento.appendChild(novoItem);
+    }
+}
+
+function embaralhar(lista) {
+    for (let i = lista.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
+}
 
 function limparCampo() {
-    nome = document.querySelector('input');
-    nome.value = '';
+    inputAmigo.value = '';
 }
 
+function reiniciar() {
+    listaNomeAmigos = [];
+    
+    // Limpa as listas exibidas
+    document.getElementById("listaAmigos").innerHTML = "";
+    document.getElementById("resultado").innerHTML = "";
+    
+    // Habilita o botão de adicionar e esconde o de reiniciar
+    if (btnAdicionar) btnAdicionar.disabled = false;
+    if (btnSortear) {
+        btnSortear.style.display = 'block';
+        btnSortear.disabled = true; // Desabilita até adicionar novos nomes
+    }
+    if (btnReiniciar) btnReiniciar.style.display = 'none';
+    
+    limparCampo();
+}
